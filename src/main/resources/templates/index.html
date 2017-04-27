@@ -1,0 +1,70 @@
+  <!DOCTYPE html>
+  <html lang="en" ng-app="mango">
+  <head>
+      <title>Mango</title>
+      <meta name="description" content="Poc for master data project codename Mango" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.min.js"></script>
+      <script>
+          var mango = angular.module('mango', []);
+          mango.controller('DataCtrl', function ($scope, $http){
+              $http.get('/api').then(function success(serverdata) {
+                  $scope.data = serverdata.data;
+              }, function error(){
+                  console.log('Could not get Master data, not my fault');
+              });
+              $scope.sortField = 'id';
+              $scope.reverse = false;
+              $scope.update = function(datarow) {
+                  console.log(datarow);
+                  $http.put('/api?', datarow).then(function () {
+                      console.log('sucess')
+                  }, function () {
+                      console.log('faliure')
+                  });
+              }
+          });
+      </script>
+      <link rel="stylesheet" type="text/css" href="main.css" />
+  </head>
+  <body ng-controller="DataCtrl">
+      <div class="content">
+      <div class="header">
+          <img class="logotype" src="su.gif" />
+      </div>
+      <div class="datatable">
+          Search:<input ng-model="query" type="text"/>
+          <table>
+              <tr>
+                  <th><a href="" ng-click="sortField ='id'; reverse = !reverse">Id</a></th>
+                  <th><a href="" ng-click="sortField ='tagname'; reverse = !reverse">Tagname</a></th>
+                  <th><a href="" ng-click="sortField = 'value'; reverse = !reverse">Value</a></th>
+              </tr>
+              <tr ng-repeat="row in data | filter:query | orderBy:sortField:reverse">
+                  <td>
+                      <label class="numberlable">{{row.id}}</label>
+                  </td>
+                  <td>
+                      <input ng-model="row.tagname" type="text" />
+                  </td>
+                  <td>
+                      <input ng-model="row.value" type="text" />
+                  </td>
+                  <td>
+                      <form ng-submit="update(row)">
+                          <input type="submit" value="Update" />
+                      </form>
+                  </td>
+              </tr>
+          </table>
+      </div>
+      <div class="input">
+          <form action="/api" method="post" class="inputform">
+              <label class="numberlable">#</label>
+              <input type="text" name="tagname" value="Type a value here" />
+              <input type="text" name="value" value="Type a value here" />
+              <input type="submit" value="Add new" />
+          </form>
+      </div>
+      </div>
+  </body>
+  </html>
